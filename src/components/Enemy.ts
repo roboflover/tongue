@@ -32,16 +32,31 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         });
 
         for (let i = 0; i < 10; i++) {
-            const x = Phaser.Math.Between(100, this.scene.scale.width - 50);
-            const y = Phaser.Math.Between(50, 1000);
+            let x, y;
+            let validPosition = false;
+    
+            while (!validPosition) {
+                x = Phaser.Math.Between(100, this.scene.scale.width - 50);
+                y = Phaser.Math.Between(50, 1000);
+                validPosition = true;
+    
+                for (const enemy of this.enemies) {
+                    const distance = Phaser.Math.Distance.Between(x, y, enemy.x, enemy.y);
+                    if (distance < 100) {
+                        validPosition = false;
+                        break;
+                    }
+                }
+            }
+    
             const enemy = this.scene.add.sprite(x, y, 'cube');
             enemy.play('rotate');
-
+    
             this.scene.physics.world.enable(enemy);
             const body = enemy.body as Phaser.Physics.Arcade.Body;
             body.setImmovable(true);
             body.setAllowGravity(false);
-
+    
             this.enemies.push(enemy);
             this.sineWaveOffsets.push(Phaser.Math.FloatBetween(0, Math.PI * 2));
         }
