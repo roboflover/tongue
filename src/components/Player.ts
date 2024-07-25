@@ -45,6 +45,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.isFire = false
     }
 
+    setFireState(isFire: boolean): void {
+        this.isFire = isFire;
+    }
+
     updateFireState(isFire: boolean) {
         this.isFire = isFire;
     }
@@ -61,8 +65,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.centerX = (windowWidth - rectWidth) / 2;
         this.bottomY = windowHeight - rectHeight - offset;
 
-        this.playerGraphics = this.scene.add.graphics({ fillStyle: { color: 0x00ff00 } });
-        this.playerGraphics.fillRect(0, 0, rectWidth, rectHeight);
+        this.playerGraphics = this.scene.add.graphics({ fillStyle: { color: 0xff0000 } });
+        // this.playerGraphics.fillRect(0, 0, rectWidth, rectHeight);
         this.playerGraphics.setPosition(this.centerX, this.bottomY);
 
         const config = {
@@ -96,15 +100,47 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.scene.input.on('pointerup', (pointer) => {
             this.playerGraphics.clear();
-            this.playerGraphics.fillRect(0, 0, this.minWidth, 20);
+            // this.playerGraphics.fillRect(0, 0, this.minWidth, 20);
         });
 
+        const playerSprite = this.scene.add.sprite(this.playerGraphics.x, this.playerGraphics.y - 120, 'player');
+        playerSprite.scale = 3;
+
+        let isMouseDown = false;
+
+        this.scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            isMouseDown = true;
+            let newFrame = 0;
+            if (pointer.x > this.scene.scale.width / 2) {
+                newFrame = 1;
+            } else {
+                newFrame = 2;
+            }
+            playerSprite.setFrame(newFrame);
+            this.scene.time.delayedCall(2500, () => {
+                playerSprite.setFrame(0);
+                isMouseDown = false;
+            });
+        });
+        
+        if(this.isFire){
+                if (!isMouseDown) {
+                    playerSprite.setFrame(3)
+                    // this.scene.time.delayedCall(300, () => {
+                    //     if (!isMouseDown) {
+                    //         playerSprite.setFrame(0);
+                    //     }
+                    // });
+                } else {
+                    playerSprite.setFrame(0)
+                }
+        }
     }
 
     getPlayerBounds() {
         return {
             startPointX: this.playerGraphics.x,
-            startPointY: this.playerGraphics.y,
+            startPointY: this.playerGraphics.y-170,
             lineDistance: this.targetWidth,
             angle: this.angle,
             endPointX: this.endPointX,
@@ -113,10 +149,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     updateWidth(newWidth: number) {
-        this.rectWidth = newWidth;
-        this.playerGraphics.clear();
-        this.playerGraphics.fillStyle(0x00ff00);
-        this.playerGraphics.fillRect(0, 0, this.rectWidth, this.rectHeight);
+        // this.rectWidth = newWidth;
+        // this.playerGraphics.clear();
+        // this.playerGraphics.fillStyle(0xff0000);
+        // this.playerGraphics.fillRect(0, 0, this.rectWidth, this.rectHeight);
     }
 
     update() {
